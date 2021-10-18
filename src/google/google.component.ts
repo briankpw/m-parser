@@ -21,7 +21,7 @@ export class GoogleComponent implements OnInit {
   // AG Grid
   public gridOptions: GridOptions = {
     pagination: true,
-    paginationPageSize: 50,
+    paginationPageSize: 200,
     headerHeight: 38,
     rowSelection: 'single',
     defaultColDef: {
@@ -36,40 +36,50 @@ export class GoogleComponent implements OnInit {
     {
       headerName: 'Timestamp',
       field: 'timestamp',
-      sort: 'desc',
       width: '150px',
     },
-    { headerName: 'Email', field: 'email', width: '100px' },
+    { headerName: 'Email', field: 'email', width: '200px' },
     { headerName: 'Name', field: 'name', width: '100px' },
     { headerName: 'Country', field: 'country', width: '100px' },
     { headerName: 'Prajna', field: 'prajna', width: '80px' },
     { headerName: 'Heart', field: 'heart', width: '80px' },
     { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Note', field: 'note', width: '80px' },
+    { headerName: 'Note', field: 'note' },
   ];
 
   public anomalyColumnDefs: Array<any> = [
-    { headerName: 'No', field: 'no', width: '50px' },
+    { headerName: 'No', field: 'no', width: '100px', sort: 'asc' },
     { headerName: 'Date', field: 'date', width: '80px' },
     {
       headerName: 'Timestamp',
       field: 'timestamp',
-      sort: 'desc',
       width: '150px',
     },
-    { headerName: 'Email', field: 'email', width: '100px' },
+    { headerName: 'Email', field: 'email', width: '150px' },
     { headerName: 'Name', field: 'name', width: '100px' },
     { headerName: 'Country', field: 'country', width: '100px' },
     { headerName: 'Prajna', field: 'prajna', width: '80px' },
     { headerName: 'Heart', field: 'heart', width: '80px' },
     { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Note', field: 'note', width: '80px' },
+    { headerName: 'Note', field: 'note' },
   ];
 
   // Process
   public anomalyRow: Array<any> = [];
   public overloadRow: Array<any> = [];
   public parseRow: Array<any> = [];
+
+  // csv
+  private csvColumn: String[] = [
+    'timestamp',
+    'email',
+    'name',
+    'country',
+    'prajna',
+    'heart',
+    'mijima',
+  ];
+  private anomalyColumn: String[] = this.csvColumn.concat(['no']);
 
   constructor(private ngxCsvParser: NgxCsvParser) {}
   ngOnInit() {}
@@ -171,16 +181,18 @@ export class GoogleComponent implements OnInit {
     this.overloadRow = overload;
   }
 
-  downloadClick() {
-    console.log(this.rawRecords);
-    Download.csvFile(this.parseRow);
+  downloadClick(value, anomaly = false) {
+    console.log(this[value]);
+
+    const column = anomaly ? this.anomalyColumn : this.csvColumn;
+    Download.csvFile(this[value], 'mParser', column);
   }
 
   // Utility
   // Number
   parseNumber(value): { value: number; status: boolean } {
     // console.log(value);
-    if (value == '') {
+    if (value == '' || value == undefined) {
       return { value: 0, status: true };
     }
 

@@ -17,6 +17,7 @@ function ConvertToCSV(dataset, column?, heading?) {
     str += arrayLabel.join(',') + '\r\n';
   }
 
+  console.log(arrayLabel);
   for (let i = 0; i < dataset.length; i++) {
     let line: string = '';
     for (let j = 0; j < arrayLabel.length; j++) {

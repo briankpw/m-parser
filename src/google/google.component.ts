@@ -47,6 +47,24 @@ export class GoogleComponent implements OnInit {
     { headerName: 'Note', field: 'note' },
   ];
 
+  public parseColumnDefs: Array<any> = [
+    { headerName: 'ID', field: 'id', width: '80px' },
+    { headerName: 'User ID', field: 'userId', width: '80px' },
+    // { headerName: 'Date', field: 'date', width: '80px' },
+    {
+      headerName: 'Timestamp',
+      field: 'timestamp',
+      width: '150px',
+    },
+    { headerName: 'Email', field: 'email', width: '200px' },
+    { headerName: 'Name', field: 'name', width: '100px' },
+    { headerName: 'Country', field: 'country', width: '100px' },
+    { headerName: 'Prajna', field: 'prajna', width: '80px' },
+    { headerName: 'Heart', field: 'heart', width: '80px' },
+    { headerName: 'Mijima', field: 'mijima', width: '80px' },
+    { headerName: 'Note', field: 'note' },
+  ];
+
   public anomalyColumnDefs: Array<any> = [
     { headerName: 'No', field: 'no', width: '100px', sort: 'asc' },
     { headerName: 'Date', field: 'date', width: '80px' },
@@ -120,6 +138,8 @@ export class GoogleComponent implements OnInit {
       obj.email = d.email;
       obj.name = d.name;
       obj.country = d.country;
+      obj.id = 'B1_' + (i + 1);
+      obj.userId = d.email + '$' + d.name;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
       obj.timestamp = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(

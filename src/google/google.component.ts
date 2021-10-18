@@ -122,8 +122,8 @@ export class GoogleComponent implements OnInit {
       obj.country = d.country;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
-      obj.timestamp = moment(d.timestamp, 'YYYY/MM/DD a HH:mm:ss').format(
-        'YYYY/MM/DD hh:mm:ss'
+      obj.timestamp = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(
+        'YYYY/MM/DD HH:mm:ss'
       );
 
       const prajna = this.parseNumber(d.prajna);

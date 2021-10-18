@@ -1,0 +1,102 @@
+<!-- <div class="container"> -->
+<div>
+  <div class="row padding-b10">
+    <div class="input-group sm-12">
+      <div class="input-group sm-12">
+        Step 1: Copy & Paste the value to first row of the csv
+      </div>
+
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">Copy</span>
+      </div>
+      <input
+        type="text"
+        class="form-control"
+        aria-label="Small"
+        aria-describedby="inputGroup-sizing-sm"
+        value="date,timestamp,email,name,country,prajna,heart,mijima,note,,,"
+      />
+    </div>
+  </div>
+
+  <div class="row padding-b10">
+    <div class="input-group sm-12">Step 2: Upload csv file</div>
+
+    <div class="input-group sm-12">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">File:</span>
+      </div>
+      <input
+        class="form-control"
+        type="file"
+        accept=".csv"
+        (change)="fileChangeListener($event)"
+      />
+    </div>
+  </div>
+
+  <div class="row padding-b10">
+    <div class="col-sm-12">
+      <span>Raw Data ({{ rawRecords.length }} Records)</span>
+      <ag-grid-angular
+        style="width: 100%;height: 200px;"
+        class="ag-theme-balham"
+        [rowData]="rawRecords"
+        [columnDefs]="columnDefs"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <div class="row padding-b10">
+    <div class="col-sm-12">
+      <button type="button" class="btn btn-primary" (click)="parseClick()">
+        Parse it
+      </button>
+    </div>
+  </div>
+
+  <div class="row padding-b10">
+    <div class="col-sm-6">
+      <span>Anomaly Data ({{ anomalyRow.length }} Records)</span>
+      <ag-grid-angular
+        style="width: 100%;height: 200px;"
+        class="ag-theme-balham"
+        [rowData]="anomalyRow"
+        [columnDefs]="anomalyColumnDefs"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+    </div>
+
+    <div class="col-sm-6">
+      <span>Overload Data ({{ overloadRow.length }} Records)</span>
+      <ag-grid-angular
+        style="width: 100%;height: 200px;"
+        class="ag-theme-balham"
+        [rowData]="overloadRow"
+        [columnDefs]="anomalyColumnDefs"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+    </div>
+  </div>
+
+  <br />
+
+  <div class="row padding-b10">
+    <div class="col-sm-12">
+      <span>Parsed Data ({{ parseRow.length }} Records)</span>
+      <ag-grid-angular
+        style="width: 100%;height: 200px;"
+        class="ag-theme-balham"
+        [rowData]="parseRow"
+        [columnDefs]="columnDefs"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+    </div>
+    <div class="col-sm-12">
+      <button type="button" class="btn btn-success" (click)="downloadClick()">
+        Download
+      </button>
+    </div>
+  </div>
+</div>

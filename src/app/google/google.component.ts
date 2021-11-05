@@ -318,34 +318,40 @@ export class GoogleComponent implements OnInit {
     }
   }
 
-  parseCountry(name) {
+  parseCountry(value: string) {
     const countryList: Array<any> = [
-      { id: 'SGP', name: '新加坡', simple: '' },
-      { id: 'MYS', name: '馬來西亞', simple: '' },
-      { id: 'TWN', name: '台灣', simple: '' },
-      { id: 'USA', name: '美國', simple: '' },
-      { id: 'CAN', name: '加拿大', simple: '' },
-      { id: 'BRN', name: '汶萊', simple: '' },
-      { id: 'CHN', name: '中國', simple: '' },
-      { id: 'HKG', name: '香港', simple: '' },
-      { id: 'MAC', name: '澳門', simple: '' },
-      { id: 'FRA', name: '法國', simple: '' },
-      { id: 'AUT', name: '奧地利', simple: '' },
-      { id: 'KOR', name: '韓國', simple: '' },
-      { id: 'DEU', name: '德國', simple: '' },
-      { id: 'LUX', name: '盧森堡', simple: '' },
-      { id: 'PHL', name: '菲律賓', simple: '' },
-      { id: 'AUS', name: '澳洲', simple: '' },
-      { id: 'IDN', name: '印尼', simple: '' },
-      { id: 'GBR', name: '英國', simple: '' },
-      { id: 'OTHER', name: '其他', simple: '' },
+      { id: 'SGP', name: '新加坡', simple: '新加坡' },
+      { id: 'MYS', name: '馬來西亞', simple: '马来西亚' },
+      { id: 'TWN', name: '台灣', simple: '台湾' },
+      { id: 'USA', name: '美國', simple: '美国' },
+      { id: 'CAN', name: '加拿大', simple: '加拿大' },
+      { id: 'BRN', name: '汶萊', simple: '汶莱' },
+      { id: 'CHN', name: '中國', simple: '中国' },
+      { id: 'HKG', name: '香港', simple: '香港' },
+      { id: 'MAC', name: '澳門', simple: '澳门' },
+      { id: 'FRA', name: '法國', simple: '法国' },
+      { id: 'AUT', name: '奧地利', simple: '奥地利' },
+      { id: 'KOR', name: '韓國', simple: '韩国' },
+      { id: 'DEU', name: '德國', simple: '德国' },
+      { id: 'LUX', name: '盧森堡', simple: '卢森堡' },
+      { id: 'PHL', name: '菲律賓', simple: '菲律宾' },
+      { id: 'AUS', name: '澳洲', simple: '澳洲' },
+      { id: 'IDN', name: '印尼', simple: '印尼' },
+      { id: 'GBR', name: '英國', simple: '英国' },
+      { id: 'OTHER', name: '其他', simple: '其他' },
     ];
 
+    const name = value.split('/')[0];
     const found = _.findWhere(countryList, { name });
     if (found) {
       return found.id;
     } else {
-      return 'OTHER';
+      const foundSimple = _.findWhere(countryList, { simple: name });
+      if (foundSimple) {
+        return foundSimple.id;
+      } else {
+        return 'OTHER';
+      }
     }
   }
 

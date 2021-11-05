@@ -178,11 +178,11 @@ export class GoogleComponent implements OnInit {
     _.each(data, (d, i) => {
       const obj: any = {};
       obj.date = d.date;
-      obj.email = d.email.toLowerCase();
-      obj.name = this.capitalize(d.name);
+      obj.email = this.removeSpecialChar(d.email.toLowerCase());
+      obj.name = this.removeSpecialChar(this.capitalize(d.name));
       obj.country = d.country;
-      obj.meritID = 'GF' + 'B1' + '_' + (i + 1);
-      obj.userID = d.email + '$' + d.name;
+      obj.meritID = 'GF' + 'B2' + '_' + (i + 1);
+      obj.userID = obj.email + '$' + obj.name;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
       obj.createdDate = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(
@@ -212,7 +212,12 @@ export class GoogleComponent implements OnInit {
         anomalyCount++;
       }
 
-      if (d.timestamp == '' || obj.userID == '$') {
+      if (
+        d.timestamp == '' ||
+        obj.name == '' ||
+        obj.userID == '$' ||
+        obj.createdDate == 'Invalid date'
+      ) {
       } else {
         parsed.push(obj);
       }
@@ -367,6 +372,10 @@ export class GoogleComponent implements OnInit {
     return /^\d+$/.test(value);
   }
 
+  removeSpecialChar(string) {
+    //  return string.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+    return string.replace(/\\/g, '');
+  }
   capitalize(phrase): boolean {
     return phrase
       .toLowerCase()

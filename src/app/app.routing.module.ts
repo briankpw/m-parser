@@ -2,15 +2,14 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { GoogleComponent } from '../google/google.component';
-import { WechatComponent } from '../wechat/wechat.component';
+import { GoogleComponent } from './google/google.component';
+import { WechatComponent } from './wechat/wechat.component';
 
 const routes: Routes = [
   {
     path: '',
     component: AppComponent,
     children: [
-      { path: '**', redirectTo: '/google', pathMatch: 'full' },
       {
         path: 'google',
         component: GoogleComponent,
@@ -21,6 +20,7 @@ const routes: Routes = [
         component: WechatComponent,
         data: { preload: true },
       },
+      { path: '**', redirectTo: '/google', pathMatch: 'full' },
     ],
   },
 ];
@@ -30,7 +30,7 @@ const routes: Routes = [
     RouterModule.forRoot(routes, {
       enableTracing: false,
       // useHash: true,
-      // preloadingStrategy: PreloadAllModules
+      // preloadingStrategy: PreloadAllModules,
     }),
   ],
   exports: [RouterModule],

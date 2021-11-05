@@ -17,7 +17,6 @@ function ConvertToCSV(dataset, column?, heading?) {
     str += arrayLabel.join(',') + '\r\n';
   }
 
-  console.log(arrayLabel);
   for (let i = 0; i < dataset.length; i++) {
     let line: string = '';
     for (let j = 0; j < arrayLabel.length; j++) {
@@ -29,12 +28,12 @@ function ConvertToCSV(dataset, column?, heading?) {
           ? applyFunction(arrayLabel[j], dataset[i])
           : dataset[i][arrayLabel[j]];
 
-      if (_.isString(value) || _.isNumber(value) || _.isBoolean(value)) {
+      if (_.isString(value)) {
         line += `"${value}"`;
       } else if (value) {
         line += value;
       } else {
-        line += ' ';
+        line += 'NULL';
       }
     }
     str += line + '\r\n';

@@ -5,7 +5,7 @@ import { NgxCsvParser, NgxCSVParserError } from 'ngx-csv-parser';
 import * as _ from 'underscore';
 import moment from 'moment';
 
-import { Download } from '/~/src/shared/download';
+import { Download } from '../shared/download';
 
 @Component({
   selector: 'app-google',
@@ -47,13 +47,12 @@ export class GoogleComponent implements OnInit {
     { headerName: 'Note', field: 'note' },
   ];
 
-  public parseColumnDefs: Array<any> = [
-    { headerName: 'ID', field: 'id', width: '80px' },
-    { headerName: 'User ID', field: 'userId', width: '80px' },
-    // { headerName: 'Date', field: 'date', width: '80px' },
+  public meritColumnDefs: Array<any> = [
+    { headerName: 'Merit ID', field: 'meritID', width: '80px' },
+    { headerName: 'User ID', field: 'userID', width: '80px' },
     {
       headerName: 'Timestamp',
-      field: 'timestamp',
+      field: 'createdDate',
       width: '150px',
     },
     { headerName: 'Email', field: 'email', width: '200px' },
@@ -62,6 +61,22 @@ export class GoogleComponent implements OnInit {
     { headerName: 'Prajna', field: 'prajna', width: '80px' },
     { headerName: 'Heart', field: 'heart', width: '80px' },
     { headerName: 'Mijima', field: 'mijima', width: '80px' },
+    { headerName: 'Note', field: 'note' },
+  ];
+
+  public userColumnDefs: Array<any> = [
+    { headerName: 'User ID', field: 'userID', width: '80px' },
+    {
+      headerName: 'Timestamp',
+      field: 'createdDate',
+      width: '150px',
+    },
+    { headerName: 'Email', field: 'email', width: '200px' },
+    { headerName: 'Name', field: 'name', width: '100px' },
+    { headerName: 'Gender', field: 'gender', width: '80px' },
+    { headerName: 'DOB', field: 'dateOfBirth', width: '80px' },
+    { headerName: 'Country', field: 'countryID', width: '100px' },
+    { headerName: 'Category', field: 'categoryID', width: '80px' },
     { headerName: 'Note', field: 'note' },
   ];
 
@@ -85,10 +100,38 @@ export class GoogleComponent implements OnInit {
   // Process
   public anomalyRow: Array<any> = [];
   public overloadRow: Array<any> = [];
-  public parseRow: Array<any> = [];
+  public meritRow: Array<any> = [];
+  public userRow: Array<any> = [];
+
+  // List
+
+  private categoryList: Array<any> = [
+    { id: 'INDIVIDUAL', name: '個人', simple: '' },
+    { id: 'CLASS', name: '班級', simple: '' },
+    { id: 'GROUP', name: '團體', simple: '' },
+    { id: 'SANGHA', name: '僧團', simple: '' },
+  ];
 
   // csv
-  private csvColumn: String[] = [
+  private meritColumn: String[] = [
+    'meritID',
+    'userID',
+    'prajna',
+    'heart',
+    'mijima',
+    'createdDate',
+  ];
+  private userColumn: String[] = [
+    'userID',
+    'name',
+    'email',
+    'gender',
+    'dateOfBirth',
+    'countryID',
+    'categoryID',
+    'createdDate',
+  ];
+  private anomalyColumn: String[] = [
     'timestamp',
     'email',
     'name',
@@ -96,8 +139,8 @@ export class GoogleComponent implements OnInit {
     'prajna',
     'heart',
     'mijima',
+    'no',
   ];
-  private anomalyColumn: String[] = this.csvColumn.concat(['no']);
 
   constructor(private ngxCsvParser: NgxCsvParser) {}
   ngOnInit() {}
@@ -135,14 +178,14 @@ export class GoogleComponent implements OnInit {
     _.each(data, (d, i) => {
       const obj: any = {};
       obj.date = d.date;
-      obj.email = d.email;
-      obj.name = d.name;
+      obj.email = d.email.toLowerCase();
+      obj.name = this.capitalize(d.name);
       obj.country = d.country;
-      obj.id = 'B1_' + (i + 1);
-      obj.userId = d.email + '$' + d.name;
+      obj.meritID = 'GF' + 'B1' + '_' + (i + 1);
+      obj.userID = d.email + '$' + d.name;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
-      obj.timestamp = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(
+      obj.createdDate = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(
         'YYYY/MM/DD HH:mm:ss'
       );
 
@@ -169,7 +212,8 @@ export class GoogleComponent implements OnInit {
         anomalyCount++;
       }
 
-      if (d.timestamp !== '') {
+      if (d.timestamp == '' || obj.userID == '$') {
+      } else {
         parsed.push(obj);
       }
 
@@ -196,16 +240,61 @@ export class GoogleComponent implements OnInit {
     });
 
     // console.log(anomaly);
-    this.parseRow = parsed;
+    this.meritRow = parsed;
     this.anomalyRow = anomaly;
     this.overloadRow = overload;
+
+    this.parseUser(this.meritRow);
   }
 
-  downloadClick(value, anomaly = false) {
+  parseUser(data) {
+    const user: any = {};
+    const userList: any[] = [];
+
+    _.each(data, (d) => {
+      const userId = d.email + '$' + d.name;
+
+      if (user[userId]) {
+        // console.log(d);
+      } else {
+        const obj: any = {};
+        obj.userID = userId;
+        obj.name = d.name;
+        obj.email = d.email;
+        obj.gender = d?.gender;
+        obj.dateOfBirth = d?.dateOfBirth;
+        obj.countryID = this.parseCountry(d.country);
+        obj.categoryID = 'INDIVIDUAL';
+        obj.createdDate = d.createdDate;
+
+        user[userId] = obj;
+      }
+    });
+
+    // To Array
+
+    _.each(user, (d) => {
+      if (d.name == '' || d.name == '$') {
+      } else {
+        userList.push(d);
+      }
+    });
+
+    this.userRow = userList;
+    console.log(user);
+  }
+
+  downloadClick(value, anomaly = false, user = false) {
     console.log(this[value]);
 
-    const column = anomaly ? this.anomalyColumn : this.csvColumn;
-    Download.csvFile(this[value], 'mParser', column);
+    let column = anomaly ? this.anomalyColumn : this.meritColumn;
+    let fileName = 'merit';
+    if (user) {
+      column = this.userColumn;
+      fileName = 'user';
+    }
+
+    Download.csvFile(this[value], fileName, column);
   }
 
   // Utility
@@ -229,6 +318,37 @@ export class GoogleComponent implements OnInit {
     }
   }
 
+  parseCountry(name) {
+    const countryList: Array<any> = [
+      { id: 'SGP', name: '新加坡', simple: '' },
+      { id: 'MYS', name: '馬來西亞', simple: '' },
+      { id: 'TWN', name: '台灣', simple: '' },
+      { id: 'USA', name: '美國', simple: '' },
+      { id: 'CAN', name: '加拿大', simple: '' },
+      { id: 'BRN', name: '汶萊', simple: '' },
+      { id: 'CHN', name: '中國', simple: '' },
+      { id: 'HKG', name: '香港', simple: '' },
+      { id: 'MAC', name: '澳門', simple: '' },
+      { id: 'FRA', name: '法國', simple: '' },
+      { id: 'AUT', name: '奧地利', simple: '' },
+      { id: 'KOR', name: '韓國', simple: '' },
+      { id: 'DEU', name: '德國', simple: '' },
+      { id: 'LUX', name: '盧森堡', simple: '' },
+      { id: 'PHL', name: '菲律賓', simple: '' },
+      { id: 'AUS', name: '澳洲', simple: '' },
+      { id: 'IDN', name: '印尼', simple: '' },
+      { id: 'GBR', name: '英國', simple: '' },
+      { id: 'OTHER', name: '其他', simple: '' },
+    ];
+
+    const found = _.findWhere(countryList, { name });
+    if (found) {
+      return found.id;
+    } else {
+      return 'OTHER';
+    }
+  }
+
   validateOverload(value, limit): number {
     if (value > limit) {
       return 1;
@@ -239,5 +359,13 @@ export class GoogleComponent implements OnInit {
 
   isNumber(value): boolean {
     return /^\d+$/.test(value);
+  }
+
+  capitalize(phrase): boolean {
+    return phrase
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 }

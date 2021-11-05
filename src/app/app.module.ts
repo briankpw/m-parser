@@ -7,6 +7,7 @@ import { AgGridModule } from 'ag-grid-angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 import { GoogleComponent } from '../google/google.component';
+import { WechatComponent } from '../wechat/wechat.component';
 
 @NgModule({
   imports: [
@@ -16,7 +17,7 @@ import { GoogleComponent } from '../google/google.component';
     AgGridModule,
     NgxCsvParserModule,
   ],
-  declarations: [AppComponent, GoogleComponent],
+  declarations: [AppComponent, GoogleComponent, WechatComponent],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

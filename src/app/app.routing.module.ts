@@ -3,6 +3,7 @@ import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { GoogleComponent } from '../google/google.component';
+import { WechatComponent } from '../wechat/wechat.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,11 @@ const routes: Routes = [
       {
         path: 'google',
         component: GoogleComponent,
+        data: { preload: true },
+      },
+      {
+        path: 'wechat',
+        component: WechatComponent,
         data: { preload: true },
       },
     ],

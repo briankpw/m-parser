@@ -20,6 +20,9 @@ export class GoogleComponent implements OnInit {
 
   // Raw
   rawRecords: any[] = [];
+  globalMinDate: any;
+  globalMaxDate: any;
+  globalDateRange: string = '';
 
   // AG Grid
   public gridOptions: GridOptions = Aggrid.gridOptions;
@@ -35,13 +38,14 @@ export class GoogleComponent implements OnInit {
   public userRow: Array<any> = [];
 
   // List
-
   private categoryList: Array<any> = [
     { id: 'INDIVIDUAL', name: '個人', simple: '' },
     { id: 'CLASS', name: '班級', simple: '' },
     { id: 'GROUP', name: '團體', simple: '' },
     { id: 'SANGHA', name: '僧團', simple: '' },
   ];
+
+  private metadata: Array<any> = [];
 
   // csv
   private meritColumn: String[] = File.meritColumn;
@@ -63,6 +67,7 @@ export class GoogleComponent implements OnInit {
       .subscribe(
         (result: Array<any>) => {
           this.rawRecords = result;
+          this.parseMetaData(result);
           // this.csvRecordsCSV = this.convertToCSV(result);this.parseData();
           console.log(this.rawRecords);
         },
@@ -70,6 +75,45 @@ export class GoogleComponent implements OnInit {
           console.log('Error', error);
         }
       );
+  }
+
+  parseDateQuick(data) {
+    if (data.length == 0) {
+      return;
+    }
+
+    this.globalMinDate = moment(
+      data[0].timestamp,
+      'YYYY/MM/DD a hh:mm:ss'
+    ).format('YYYY/MM/DD');
+
+    this.globalMaxDate = moment(
+      data.length - 1,
+      'YYYY/MM/DD a hh:mm:ss'
+    ).format('YYYY/MM/DD');
+
+    this.globalDateRange = this.globalMinDate + ' To ' + this.globalMaxDate;
+  }
+
+  parseMetaData(data) {
+    let dataset = _.chain(data)
+      .pluck('timestamp')
+      .map((d) => {
+        return moment(d, 'YYYY/MM/DD a hh:mm:ss').format('YYYY/MM/DD');
+      })
+      .uniq()
+      .map((d) => {
+        return new Date(d);
+      })
+      .value();
+
+    this.globalMinDate = new Date(Math.min.apply(null, dataset));
+    this.globalMaxDate = new Date(Math.max.apply(null, dataset));
+
+    this.globalDateRange =
+      moment(this.globalMinDate).format('YYYY/MM/DD') +
+      ' To ' +
+      moment(this.globalMaxDate).format('YYYY/MM/DD');
   }
 
   parseClick() {

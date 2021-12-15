@@ -58,26 +58,30 @@ const userColumnDefs: Array<any> = [
   { headerName: 'DOB', field: 'dateOfBirth', width: '80px' },
   { headerName: 'Country', field: 'countryID', width: '100px' },
   { headerName: 'Category', field: 'categoryID', width: '80px' },
-  { headerName: 'Note', field: 'note', width: '300px' },
+  { headerName: 'Note', field: 'note' },
 ];
 
 const anomalyColumnDefs: Array<any> = [
-  { headerName: 'ID', field: 'id', width: '100px', sort: 'asc' },
+  { headerName: 'ID', field: 'id', width: '90px', sort: 'asc' },
   {
     headerName: 'Timestamp',
     field: 'timestamp',
     width: '150px',
   },
   { headerName: 'Name', field: 'name', width: '100px' },
+  { headerName: 'Email', field: 'email', width: '200px' },
   { headerName: 'Country', field: 'country', width: '100px' },
   { headerName: 'Prajna', field: 'prajna', width: '80px' },
   { headerName: 'Heart', field: 'heart', width: '80px' },
   { headerName: 'Mijima', field: 'mijima', width: '80px' },
   { headerName: 'Medicine', field: 'medicine', width: '80px' },
-  { headerName: 'Note', field: 'note' },
+  { headerName: 'Note', field: 'note', width: '300px' },
 ];
 
-const Aggrid = {gridOptions,
+
+
+const Aggrid = {
+  gridOptions,
   columnDefs,
   meritColumnDefs,
   userColumnDefs,

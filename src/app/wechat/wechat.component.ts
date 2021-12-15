@@ -207,7 +207,15 @@ export class WechatComponent implements OnInit {
         anomalyCount++;
       }
 
-      if (!Parser.validateCountry(obj.country)) {
+      // Parse for China
+      let name = obj.country;
+      if (name.includes('中国')) {
+        name = '中国';
+      } else if (name.includes('中國')) {
+        name = '中國';
+      }
+      const isNotCountry = !Parser.validateCountry(name);
+      if (isNotCountry) {
         anomalyCount++;
       }
 
@@ -217,7 +225,7 @@ export class WechatComponent implements OnInit {
           note += ' :Name';
         }
 
-        if (!Parser.validateCountry(obj.country)) {
+        if (isNotCountry) {
           note += ' :Location';
         }
 

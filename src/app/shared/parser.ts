@@ -39,7 +39,6 @@ function parseCountry(name: string) {
   }
 }
 
-
 // Validation
 function validateOverload(value, limit): number {
   if (value > limit) {
@@ -102,7 +101,12 @@ function validateCountry(country): boolean {
   if (found) {
     return true;
   } else {
-    return false;
+    const foundSimple = _.findWhere(countryList, { simple: country });
+    if (foundSimple) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -124,7 +128,8 @@ function capitalize(phrase): boolean {
     .join(' ');
 }
 
-const Parser = {parseCountry,
+const Parser = {
+  parseCountry,
   validateOverload,
   validateUser,
   validateCountry,

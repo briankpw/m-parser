@@ -4,8 +4,12 @@ import { Download } from '../shared/download';
 
 import * as _ from 'underscore';
 import moment from 'moment';
-
 import * as XLSX from 'xlsx';
+
+import { Parser } from '../shared/parser';
+import { Aggrid } from '../shared/aggrid';
+import { File } from '../shared/file';
+
 @Component({
   selector: 'app-wechat',
   templateUrl: './wechat.component.html',
@@ -18,80 +22,11 @@ export class WechatComponent implements OnInit {
   rawRecords: any[] = [];
 
   // AG Grid
-  public gridOptions: GridOptions = {
-    pagination: true,
-    paginationPageSize: 200,
-    headerHeight: 38,
-    rowSelection: 'single',
-    defaultColDef: {
-      sortable: true,
-      resizable: true,
-      filter: true,
-    },
-  };
-
-  public columnDefs: Array<any> = [
-    {
-      headerName: 'Timestamp',
-      field: 'timestamp',
-      width: '150px',
-    },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Medicine', field: 'medicine', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public meritColumnDefs: Array<any> = [
-    { headerName: 'Merit ID', field: 'meritID', width: '80px' },
-    { headerName: 'User ID', field: 'userID', width: '80px' },
-    {
-      headerName: 'Timestamp',
-      field: 'createdDate',
-      width: '150px',
-    },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Medicine', field: 'medicine', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public userColumnDefs: Array<any> = [
-    { headerName: 'User ID', field: 'userID', width: '80px' },
-    {
-      headerName: 'Timestamp',
-      field: 'createdDate',
-      width: '150px',
-    },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Gender', field: 'gender', width: '80px' },
-    { headerName: 'DOB', field: 'dateOfBirth', width: '80px' },
-    { headerName: 'Country', field: 'countryID', width: '100px' },
-    { headerName: 'Category', field: 'categoryID', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public anomalyColumnDefs: Array<any> = [
-    { headerName: 'ID', field: 'id', width: '100px', sort: 'asc' },
-    {
-      headerName: 'Timestamp',
-      field: 'timestamp',
-      width: '150px',
-    },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Medicine', field: 'medicine', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
+  public gridOptions: GridOptions = Aggrid.gridOptions;
+  public columnDefs: Array<any> = Aggrid.columnDefs;
+  public meritColumnDefs: Array<any> = Aggrid.meritColumnDefs;
+  public userColumnDefs: Array<any> = Aggrid.userColumnDefs;
+  public anomalyColumnDefs: Array<any> = Aggrid.anomalyColumnDefs;
 
   // Process
   public anomalyRow: Array<any> = [];
@@ -109,36 +44,9 @@ export class WechatComponent implements OnInit {
   ];
 
   // csv
-  private meritColumn: String[] = [
-    'meritID',
-    'userID',
-    'prajna',
-    'heart',
-    'mijima',
-    'medicine',
-    'createdDate',
-  ];
-  private userColumn: String[] = [
-    'userID',
-    'name',
-    'email',
-    'gender',
-    'dateOfBirth',
-    'countryID',
-    'categoryID',
-    'createdDate',
-  ];
-  private anomalyColumn: String[] = [
-    'no',
-    'timestamp',
-    'email',
-    'name',
-    'country',
-    'prajna',
-    'heart',
-    'mijima',
-    'medicine',
-  ];
+  private meritColumn: String[] = File.meritColumn;
+  private userColumn: String[] = File.userColumn;
+  private anomalyColumn: String[] = File.anomalyColumn;
 
   constructor() {}
   ngOnInit() {}
@@ -233,7 +141,7 @@ export class WechatComponent implements OnInit {
       const obj: any = {};
       // obj.date = d.date;
       // obj.email = this.removeSpecialChar(d.email.toLowerCase());
-      obj.name = this.removeSpecialChar(this.capitalize(d.name));
+      obj.name = Parser.removeSpecialChar(Parser.capitalize(d.name));
       obj.country = d.country;
       obj.meritID = 'WC' + 'B1' + '_' + d.id;
       obj.userID = 'WC$' + obj.name;
@@ -285,17 +193,41 @@ export class WechatComponent implements OnInit {
       }
 
       overloadCount =
-        this.validateOverload(obj.prajna, 90) +
-        this.validateOverload(obj.heart, 1000) +
-        this.validateOverload(obj.mijima, 1000) +
-        this.validateOverload(obj.medicine, 90);
+        Parser.validateOverload(obj.prajna, 90) +
+        Parser.validateOverload(obj.heart, 1000) +
+        Parser.validateOverload(obj.mijima, 1000) +
+        Parser.validateOverload(obj.medicine, 90);
+
+      const { isNotName, isNotEmail } = Parser.validateUser(
+        obj.name,
+        obj.email
+      );
+
+      if (isNotName) {
+        anomalyCount++;
+      }
+
+      if (!Parser.validateCountry(obj.country)) {
+        anomalyCount++;
+      }
 
       if (anomalyCount) {
+        let note = '';
+        if (isNotName) {
+          note += ' :Name';
+        }
+
+        if (!Parser.validateCountry(obj.country)) {
+          note += ' :Location';
+        }
+
         const anomalyObj = { ...d };
         anomalyObj.no = i + 1;
         anomalyObj.note = anomalyCount + ' Anomaly Found';
+        if (note !== '') {
+          anomalyObj.note = anomalyObj.note + ', which is' + note;
+        }
         anomaly.push(anomalyObj);
-        // console.log(d);
       }
 
       if (overloadCount) {
@@ -303,7 +235,6 @@ export class WechatComponent implements OnInit {
         overloadObj.no = i + 1;
         overloadObj.note = overloadCount + ' Overload Found';
         overload.push(overloadObj);
-        // console.log(d);
       }
     });
 
@@ -378,7 +309,7 @@ export class WechatComponent implements OnInit {
       value = splitValue[1];
     }
 
-    if (!this.isNumber(value)) {
+    if (!Parser.isNumber(value)) {
       return { value: 0, status: false };
     }
 
@@ -392,73 +323,13 @@ export class WechatComponent implements OnInit {
   }
 
   parseCountry(value: string) {
-    const countryList: Array<any> = [
-      { id: 'SGP', name: '新加坡', simple: '新加坡' },
-      { id: 'MYS', name: '馬來西亞', simple: '马来西亚' },
-      { id: 'TWN', name: '台灣', simple: '台湾' },
-      { id: 'USA', name: '美國', simple: '美国' },
-      { id: 'CAN', name: '加拿大', simple: '加拿大' },
-      { id: 'BRN', name: '汶萊', simple: '汶莱' },
-      { id: 'CHN', name: '中國', simple: '中国' },
-      { id: 'HKG', name: '香港', simple: '香港' },
-      { id: 'MAC', name: '澳門', simple: '澳门' },
-      { id: 'FRA', name: '法國', simple: '法国' },
-      { id: 'AUT', name: '奧地利', simple: '奥地利' },
-      { id: 'KOR', name: '韓國', simple: '韩国' },
-      { id: 'DEU', name: '德國', simple: '德国' },
-      { id: 'LUX', name: '盧森堡', simple: '卢森堡' },
-      { id: 'PHL', name: '菲律賓', simple: '菲律宾' },
-      { id: 'AUS', name: '澳洲', simple: '澳洲' },
-      { id: 'IDN', name: '印尼', simple: '印尼' },
-      { id: 'GBR', name: '英國', simple: '英国' },
-      { id: 'OTHER', name: '其他', simple: '其他' },
-    ];
-
     let name = value.split('/')[0];
     if (name.includes('中国')) {
       name = '中国';
     } else if (name.includes('中國')) {
       name = '中國';
     }
-    const found = _.findWhere(countryList, { name });
-    if (found) {
-      return found.id;
-    } else {
-      const foundSimple = _.findWhere(countryList, { simple: name });
-      if (foundSimple) {
-        return foundSimple.id;
-      } else {
-        return 'OTHER';
-      }
-    }
-  }
 
-  validateOverload(value, limit): number {
-    if (value > limit) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
-  isNumber(value): boolean {
-    return /^\d+$/.test(value);
-  }
-
-  removeSpecialChar(string) {
-    //  return string.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-    return string.replace(/\\/g, '');
-  }
-
-  capitalize(phrase) {
-    if (phrase) {
-      return phrase
-        .toLowerCase()
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    } else {
-      return '';
-    }
+    return Parser.parseCountry(name);
   }
 }

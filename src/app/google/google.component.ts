@@ -6,6 +6,9 @@ import * as _ from 'underscore';
 import moment from 'moment';
 
 import { Download } from '../shared/download';
+import { Parser } from '../shared/parser';
+import { Aggrid } from '../shared/aggrid';
+import { File } from '../shared/file';
 
 @Component({
   selector: 'app-google',
@@ -19,82 +22,11 @@ export class GoogleComponent implements OnInit {
   rawRecords: any[] = [];
 
   // AG Grid
-  public gridOptions: GridOptions = {
-    pagination: true,
-    paginationPageSize: 200,
-    headerHeight: 38,
-    rowSelection: 'single',
-    defaultColDef: {
-      sortable: true,
-      resizable: true,
-      filter: true,
-    },
-    enableCellTextSelection: true,
-  };
-
-  public columnDefs: Array<any> = [
-    {
-      headerName: 'Timestamp',
-      field: 'timestamp',
-      width: '150px',
-    },
-    { headerName: 'Email', field: 'email', width: '200px' },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public meritColumnDefs: Array<any> = [
-    { headerName: 'Merit ID', field: 'meritID', width: '80px' },
-    { headerName: 'User ID', field: 'userID', width: '80px' },
-    {
-      headerName: 'Timestamp',
-      field: 'createdDate',
-      width: '150px',
-    },
-    { headerName: 'Email', field: 'email', width: '200px' },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public userColumnDefs: Array<any> = [
-    { headerName: 'User ID', field: 'userID', width: '80px' },
-    {
-      headerName: 'Timestamp',
-      field: 'createdDate',
-      width: '150px',
-    },
-    { headerName: 'Email', field: 'email', width: '200px' },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Gender', field: 'gender', width: '80px' },
-    { headerName: 'DOB', field: 'dateOfBirth', width: '80px' },
-    { headerName: 'Country', field: 'countryID', width: '100px' },
-    { headerName: 'Category', field: 'categoryID', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
-
-  public anomalyColumnDefs: Array<any> = [
-    { headerName: 'No', field: 'no', width: '100px', sort: 'asc' },
-    {
-      headerName: 'Timestamp',
-      field: 'timestamp',
-      width: '150px',
-    },
-    { headerName: 'Email', field: 'email', width: '150px' },
-    { headerName: 'Name', field: 'name', width: '100px' },
-    { headerName: 'Country', field: 'country', width: '100px' },
-    { headerName: 'Prajna', field: 'prajna', width: '80px' },
-    { headerName: 'Heart', field: 'heart', width: '80px' },
-    { headerName: 'Mijima', field: 'mijima', width: '80px' },
-    { headerName: 'Note', field: 'note' },
-  ];
+  public gridOptions: GridOptions = Aggrid.gridOptions;
+  public columnDefs: Array<any> = Aggrid.columnDefs;
+  public meritColumnDefs: Array<any> = Aggrid.meritColumnDefs;
+  public userColumnDefs: Array<any> = Aggrid.userColumnDefs;
+  public anomalyColumnDefs: Array<any> = Aggrid.anomalyColumnDefs;
 
   // Process
   public anomalyRow: Array<any> = [];
@@ -112,34 +44,9 @@ export class GoogleComponent implements OnInit {
   ];
 
   // csv
-  private meritColumn: String[] = [
-    'meritID',
-    'userID',
-    'prajna',
-    'heart',
-    'mijima',
-    'createdDate',
-  ];
-  private userColumn: String[] = [
-    'userID',
-    'name',
-    'email',
-    'gender',
-    'dateOfBirth',
-    'countryID',
-    'categoryID',
-    'createdDate',
-  ];
-  private anomalyColumn: String[] = [
-    'timestamp',
-    'email',
-    'name',
-    'country',
-    'prajna',
-    'heart',
-    'mijima',
-    'no',
-  ];
+  private meritColumn: String[] = File.meritColumn;
+  private userColumn: String[] = File.userColumn;
+  private anomalyColumn: String[] = File.anomalyColumn;
 
   constructor(private ngxCsvParser: NgxCsvParser) {}
   ngOnInit() {}
@@ -177,10 +84,10 @@ export class GoogleComponent implements OnInit {
     _.each(data, (d, i) => {
       const obj: any = {};
       obj.date = d.date;
-      obj.email = this.removeSpecialChar(d.email.toLowerCase());
-      obj.name = this.removeSpecialChar(this.capitalize(d.name));
+      obj.email = Parser.removeSpecialChar(d.email.toLowerCase());
+      obj.name = Parser.removeSpecialChar(Parser.capitalize(d.name));
       obj.country = d.country;
-      obj.meritID = 'GF' + 'B2' + '_' + (i + 1);
+      obj.meritID = 'GF' + 'B1' + '_' + (i + 1);
       obj.userID = obj.email + '$' + obj.name;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
@@ -191,6 +98,7 @@ export class GoogleComponent implements OnInit {
       const prajna = this.parseNumber(d.prajna);
       const heart = this.parseNumber(d.heart);
       const mijima = this.parseNumber(d.mijima);
+      const medicine = this.parseNumber(d.medicine);
 
       let anomalyCount: number = 0;
       let overloadCount: number = 0;
@@ -212,6 +120,12 @@ export class GoogleComponent implements OnInit {
         anomalyCount++;
       }
 
+      if (medicine.status) {
+        obj.medicine = medicine.value;
+      } else {
+        anomalyCount++;
+      }
+
       if (
         d.timestamp == '' ||
         obj.name == '' ||
@@ -223,17 +137,25 @@ export class GoogleComponent implements OnInit {
       }
 
       overloadCount =
-        this.validateOverload(obj.prajna, 90) +
-        this.validateOverload(obj.heart, 1000) +
-        this.validateOverload(obj.mijima, 1000);
+        Parser.validateOverload(obj.prajna, 90) +
+        Parser.validateOverload(obj.heart, 1000) +
+        Parser.validateOverload(obj.mijima, 1000) +
+        Parser.validateOverload(obj.medicine, 90);
 
-      const { isNotName, isNotEmail } = this.validateUser(obj.name, obj.email);
+      const { isNotName, isNotEmail } = Parser.validateUser(
+        obj.name,
+        obj.email
+      );
 
       if (isNotName) {
         anomalyCount++;
       }
 
       if (isNotEmail) {
+        anomalyCount++;
+      }
+
+      if (!Parser.validateCountry(obj.country)) {
         anomalyCount++;
       }
 
@@ -247,26 +169,27 @@ export class GoogleComponent implements OnInit {
           note += ' :Email';
         }
 
+        if (!Parser.validateCountry(obj.country)) {
+          note += ' :Location';
+        }
+
         const anomalyObj = { ...d };
-        anomalyObj.no = i + 1;
+        anomalyObj.id = i + 1;
         anomalyObj.note = anomalyCount + ' Anomaly Found';
         if (note !== '') {
           anomalyObj.note = anomalyObj.note + ', which is' + note;
         }
         anomaly.push(anomalyObj);
-        // console.log(d);
       }
 
       if (overloadCount) {
         const overloadObj = { ...d };
-        overloadObj.no = i + 1;
+        overloadObj.id = i + 1;
         overloadObj.note = overloadCount + ' Overload Found';
         overload.push(overloadObj);
-        // console.log(d);
       }
     });
 
-    // console.log(anomaly);
     this.meritRow = parsed;
     this.anomalyRow = anomaly;
     this.overloadRow = overload;
@@ -308,7 +231,6 @@ export class GoogleComponent implements OnInit {
     });
 
     this.userRow = userList;
-    console.log(user);
   }
 
   downloadClick(value, anomaly = false, user = false) {
@@ -332,7 +254,7 @@ export class GoogleComponent implements OnInit {
       return { value: 0, status: true };
     }
 
-    if (!this.isNumber(value)) {
+    if (!Parser.isNumber(value)) {
       return { value: 0, status: false };
     }
 
@@ -346,102 +268,7 @@ export class GoogleComponent implements OnInit {
   }
 
   parseCountry(value: string) {
-    const countryList: Array<any> = [
-      { id: 'SGP', name: '新加坡', simple: '新加坡' },
-      { id: 'MYS', name: '馬來西亞', simple: '马来西亚' },
-      { id: 'TWN', name: '台灣', simple: '台湾' },
-      { id: 'USA', name: '美國', simple: '美国' },
-      { id: 'CAN', name: '加拿大', simple: '加拿大' },
-      { id: 'BRN', name: '汶萊', simple: '汶莱' },
-      { id: 'CHN', name: '中國', simple: '中国' },
-      { id: 'HKG', name: '香港', simple: '香港' },
-      { id: 'MAC', name: '澳門', simple: '澳门' },
-      { id: 'FRA', name: '法國', simple: '法国' },
-      { id: 'AUT', name: '奧地利', simple: '奥地利' },
-      { id: 'KOR', name: '韓國', simple: '韩国' },
-      { id: 'DEU', name: '德國', simple: '德国' },
-      { id: 'LUX', name: '盧森堡', simple: '卢森堡' },
-      { id: 'PHL', name: '菲律賓', simple: '菲律宾' },
-      { id: 'AUS', name: '澳洲', simple: '澳洲' },
-      { id: 'IDN', name: '印尼', simple: '印尼' },
-      { id: 'GBR', name: '英國', simple: '英国' },
-      { id: 'OTHER', name: '其他', simple: '其他' },
-    ];
-
     const name = value.split('/')[0];
-    const found = _.findWhere(countryList, { name });
-    if (found) {
-      return found.id;
-    } else {
-      const foundSimple = _.findWhere(countryList, { simple: name });
-      if (foundSimple) {
-        return foundSimple.id;
-      } else {
-        return 'OTHER';
-      }
-    }
-  }
-
-  validateOverload(value, limit): number {
-    if (value > limit) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
-  validateUser(name, email): { isNotName: boolean; isNotEmail: boolean } {
-    const emailRegex = new RegExp(
-      "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
-    );
-
-    // /[a-zA-Z0-9_'\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+/;
-    // /^[-'a-z\u4e00-\u9eff]{1,20}$/i
-    const chiEngRex = /^[-'a-z\u4e00-\u9eff]{1,20}$/i;
-    const chiRex = /^[\u4e00-\u9eff]{1,20}$/i;
-    const engRex = /^[A-Za-z0-9]/;
-    const symbolSpaceRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    const symbolRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-
-    let nameFlag = false,
-      emailFlag = false;
-
-    if (email == '') {
-      emailFlag = true;
-    } else if (emailRegex.test(email)) {
-      emailFlag = true;
-    }
-
-    // Check Chinese Word
-    if (symbolRex.test(name)) {
-      nameFlag = false;
-    } else if (chiRex.test(name)) {
-      if (symbolSpaceRex.test(name)) {
-        nameFlag = false;
-      } else {
-        nameFlag = true;
-      }
-    } else if (engRex.test(name)) {
-      nameFlag = true;
-    }
-
-    return { isNotName: !nameFlag, isNotEmail: !emailFlag };
-  }
-
-  isNumber(value): boolean {
-    return /^\d+$/.test(value);
-  }
-
-  removeSpecialChar(string) {
-    //  return string.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
-    return string.replace(/\\/g, '');
-  }
-
-  capitalize(phrase): boolean {
-    return phrase
-      .toLowerCase()
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return Parser.parseCountry(name);
   }
 }

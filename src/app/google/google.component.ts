@@ -29,10 +29,10 @@ export class GoogleComponent implements OnInit {
       resizable: true,
       filter: true,
     },
+    enableCellTextSelection: true,
   };
 
   public columnDefs: Array<any> = [
-    { headerName: 'Date', field: 'date', width: '80px' },
     {
       headerName: 'Timestamp',
       field: 'timestamp',
@@ -82,7 +82,6 @@ export class GoogleComponent implements OnInit {
 
   public anomalyColumnDefs: Array<any> = [
     { headerName: 'No', field: 'no', width: '100px', sort: 'asc' },
-    { headerName: 'Date', field: 'date', width: '80px' },
     {
       headerName: 'Timestamp',
       field: 'timestamp',
@@ -192,6 +191,7 @@ export class GoogleComponent implements OnInit {
       const prajna = this.parseNumber(d.prajna);
       const heart = this.parseNumber(d.heart);
       const mijima = this.parseNumber(d.mijima);
+
       let anomalyCount: number = 0;
       let overloadCount: number = 0;
       if (prajna.status) {
@@ -227,10 +227,32 @@ export class GoogleComponent implements OnInit {
         this.validateOverload(obj.heart, 1000) +
         this.validateOverload(obj.mijima, 1000);
 
+      const { isNotName, isNotEmail } = this.validateUser(obj.name, obj.email);
+
+      if (isNotName) {
+        anomalyCount++;
+      }
+
+      if (isNotEmail) {
+        anomalyCount++;
+      }
+
       if (anomalyCount) {
+        let note = '';
+        if (isNotName) {
+          note += ' :Name';
+        }
+
+        if (isNotEmail) {
+          note += ' :Email';
+        }
+
         const anomalyObj = { ...d };
         anomalyObj.no = i + 1;
         anomalyObj.note = anomalyCount + ' Anomaly Found';
+        if (note !== '') {
+          anomalyObj.note = anomalyObj.note + ', which is' + note;
+        }
         anomaly.push(anomalyObj);
         // console.log(d);
       }
@@ -368,6 +390,44 @@ export class GoogleComponent implements OnInit {
     }
   }
 
+  validateUser(name, email): { isNotName: boolean; isNotEmail: boolean } {
+    const emailRegex = new RegExp(
+      "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])"
+    );
+
+    // /[a-zA-Z0-9_'\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+/;
+    // /^[-'a-z\u4e00-\u9eff]{1,20}$/i
+    const chiEngRex = /^[-'a-z\u4e00-\u9eff]{1,20}$/i;
+    const chiRex = /^[\u4e00-\u9eff]{1,20}$/i;
+    const engRex = /^[A-Za-z0-9]/;
+    const symbolSpaceRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    const symbolRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+
+    let nameFlag = false,
+      emailFlag = false;
+
+    if (email == '') {
+      emailFlag = true;
+    } else if (emailRegex.test(email)) {
+      emailFlag = true;
+    }
+
+    // Check Chinese Word
+    if (symbolRex.test(name)) {
+      nameFlag = false;
+    } else if (chiRex.test(name)) {
+      if (symbolSpaceRex.test(name)) {
+        nameFlag = false;
+      } else {
+        nameFlag = true;
+      }
+    } else if (engRex.test(name)) {
+      nameFlag = true;
+    }
+
+    return { isNotName: !nameFlag, isNotEmail: !emailFlag };
+  }
+
   isNumber(value): boolean {
     return /^\d+$/.test(value);
   }
@@ -376,6 +436,7 @@ export class GoogleComponent implements OnInit {
     //  return string.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
     return string.replace(/\\/g, '');
   }
+
   capitalize(phrase): boolean {
     return phrase
       .toLowerCase()

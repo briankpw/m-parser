@@ -62,7 +62,7 @@ function validateUser(
   const chiRex = /^[\u4e00-\u9eff]{1,20}$/i;
   const engRex = /^[A-Za-z0-9]/;
   const symbolSpaceRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-  const symbolRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+  const symbolRex = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
   let nameFlag = false,
     emailFlag = false;

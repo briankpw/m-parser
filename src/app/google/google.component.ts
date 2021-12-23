@@ -145,6 +145,8 @@ export class GoogleComponent implements OnInit {
       const heart = this.parseNumber(d.heart);
       const mijima = this.parseNumber(d.mijima);
       const medicine = this.parseNumber(d.medicine);
+      const totalCount =
+        prajna.value + heart.value + mijima.value + medicine.value;
 
       let anomalyCount: number = 0;
       let overloadCount: number = 0;
@@ -176,7 +178,8 @@ export class GoogleComponent implements OnInit {
         d.timestamp == '' ||
         obj.name == '' ||
         obj.userID == '$' ||
-        obj.createdDate == 'Invalid date'
+        obj.createdDate == 'Invalid date' ||
+        totalCount == 0
       ) {
       } else {
         parsed.push(obj);
@@ -278,16 +281,19 @@ export class GoogleComponent implements OnInit {
       let note = '';
 
       // Big Volume
-      if (Parser.validateOverload(d.prajna, 90)) {
+      if (Parser.validateOverload(d.prajna, 50)) {
         big = true;
         note += ' :Prajna';
-      } else if (Parser.validateOverload(d.heart, 100)) {
+      }
+      if (Parser.validateOverload(d.heart, 100)) {
         big = true;
         note += ' :Heart';
-      } else if (Parser.validateOverload(d.mijima, 50)) {
+      }
+      if (Parser.validateOverload(d.mijima, 50)) {
         big = true;
         note += ' :Mijima';
-      } else if (Parser.validateOverload(d.medicine, 50)) {
+      }
+      if (Parser.validateOverload(d.medicine, 50)) {
         big = true;
         note += ' :Medicine';
       }

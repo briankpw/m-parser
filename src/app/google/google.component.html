@@ -48,7 +48,10 @@
   <div class="row padding-b10">
     <div class="col-sm-12">
       <!-- <span>Data from {{ minDate }} to {{ maxDate }}</span> -->
-      <span><b>Raw Data</b> ({{ rawRecords.length }} Records) {{globalDateRange}}</span>
+      <span
+        ><b>Raw Data</b> ({{ rawRecords.length }} Records)
+        {{ globalDateRange }}</span
+      >
       <ag-grid-angular
         style="width: 100%;height: 200px;"
         class="ag-theme-balham"
@@ -112,9 +115,31 @@
         Download
       </button>
     </div>
-  </div>
 
-  <br />
+    <div class="col-sm-12">
+      <span
+        ><b>Multiple Entries + Overload Data (Weekly)</b> ({{
+          multipleRow.length
+        }}
+        Records)</span
+      >
+      <ag-grid-angular
+        style="width: 100%;height: 200px;"
+        class="ag-theme-balham"
+        [rowData]="multipleRow"
+        [columnDefs]="anomalyColumnDefs"
+        [gridOptions]="gridOptions"
+      ></ag-grid-angular>
+      <button
+        type="button"
+        class="btn btn-warning"
+        (click)="downloadClick('multipleRow,true')"
+      >
+        Download
+      </button>
+    </div>
+    <br />
+  </div>
 
   <div class="row padding-b10">
     <div class="col-sm-12">

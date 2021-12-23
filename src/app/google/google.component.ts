@@ -34,6 +34,7 @@ export class GoogleComponent implements OnInit {
   // Process
   public anomalyRow: Array<any> = [];
   public overloadRow: Array<any> = [];
+  public multipleRow: Array<any> = [];
   public meritRow: Array<any> = [];
   public userRow: Array<any> = [];
 
@@ -60,7 +61,7 @@ export class GoogleComponent implements OnInit {
     const files = $event.srcElement.files;
 
     // Parse the file you want to select for the operation along with the configuration
-    console.log(this.ngxCsvParser.isCSVFile(files[0]));
+    // console.log(this.ngxCsvParser.isCSVFile(files[0]));
     this.ngxCsvParser
       .parse(files[0], { header: this.header, delimiter: ',' })
       .pipe()
@@ -69,7 +70,7 @@ export class GoogleComponent implements OnInit {
           this.rawRecords = result;
           this.parseMetaData(result);
           // this.csvRecordsCSV = this.convertToCSV(result);this.parseData();
-          console.log(this.rawRecords);
+          // console.log(this.rawRecords);
         },
         (error: NgxCSVParserError) => {
           console.log('Error', error);
@@ -127,7 +128,6 @@ export class GoogleComponent implements OnInit {
 
     _.each(data, (d, i) => {
       const obj: any = {};
-      obj.date = d.date;
       obj.email = Parser.removeSpecialChar(d.email.toLowerCase());
       obj.name = Parser.removeSpecialChar(Parser.capitalize(d.name));
       obj.country = d.country;
@@ -135,9 +135,11 @@ export class GoogleComponent implements OnInit {
       obj.userID = obj.email + '$' + obj.name;
 
       d.timestamp = d.timestamp.replace('下午', 'PM').replace('上午', 'AM');
-      obj.createdDate = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss').format(
-        'YYYY/MM/DD HH:mm:ss'
-      );
+
+      const momentDate = moment(d.timestamp, 'YYYY/MM/DD a hh:mm:ss');
+      obj.createdDate = momentDate.format('YYYY/MM/DD HH:mm:ss');
+      obj.date = momentDate.format('YYYY/MM/DD');
+      obj.week = momentDate.week();
 
       const prajna = this.parseNumber(d.prajna);
       const heart = this.parseNumber(d.heart);
@@ -238,7 +240,65 @@ export class GoogleComponent implements OnInit {
     this.anomalyRow = anomaly;
     this.overloadRow = overload;
 
+    // console.log(this.meritRow);
     this.parseUser(this.meritRow);
+    this.parseMultipleEntry(this.meritRow);
+  }
+
+  parseMultipleEntry(data) {
+    const multiple = {};
+    const multipleList: any[] = [];
+
+    const groupDate = _.groupBy(data, function (value) {
+      return value.week + '#' + value.email + '$' + value.name;
+    });
+
+    _.each(groupDate, function (d, i) {
+      if (d.length > 5) {
+        _.each(d, function (dd) {
+          if (multiple.hasOwnProperty(i)) {
+            multiple[i].prajna += dd.prajna;
+            multiple[i].heart += dd.heart;
+            multiple[i].mijima += dd.mijima;
+            multiple[i].medicine += dd.medicine;
+          } else {
+            // First Times
+            multiple[i] = dd;
+            multiple[i].note = d.length + ' Entry Found';
+            multiple[i].id = _.pluck(d, 'meritID');
+            multiple[i].timestamp = _.chain(d).pluck('date').uniq().value();
+          }
+        });
+      }
+    });
+
+    // To Array & Overload Check
+    _.each(multiple, (d) => {
+      let big = false;
+      let note = '';
+
+      // Big Volume
+      if (Parser.validateOverload(d.prajna, 90)) {
+        big = true;
+        note += ' :Prajna';
+      } else if (Parser.validateOverload(d.heart, 100)) {
+        big = true;
+        note += ' :Heart';
+      } else if (Parser.validateOverload(d.mijima, 50)) {
+        big = true;
+        note += ' :Mijima';
+      } else if (Parser.validateOverload(d.medicine, 50)) {
+        big = true;
+        note += ' :Medicine';
+      }
+
+      if (big) {
+        d.note += note;
+        multipleList.push(d);
+      }
+    });
+
+    this.multipleRow = multipleList;
   }
 
   parseUser(data) {

@@ -60,7 +60,12 @@ function validateUser(
   // /^[-'a-z\u4e00-\u9eff]{1,20}$/i
   const chiEngRex = /^[-'a-z\u4e00-\u9eff]{1,20}$/i;
   const chiRex = /^[\u4e00-\u9eff]{1,20}$/i;
-  const engRex = /^[A-Za-z0-9]/;
+  const allChiRex =
+    /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]/;
+  const chiScriptRex = /\p{Script=Han}/;
+  // const engRex = /^[A-Za-z0-9]/;
+  const allEngRex = /^[a-zA-Z ]+$/;
+  const engRex = /[a-zA-Z ]/;
   const symbolSpaceRex = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
   const symbolRex = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
@@ -76,13 +81,15 @@ function validateUser(
   // Check Chinese Word
   if (symbolRex.test(name)) {
     nameFlag = false;
-  } else if (chiRex.test(name)) {
-    if (symbolSpaceRex.test(name)) {
+  } else if (allChiRex.test(name)) {
+    if (engRex.test(name)) {
+      nameFlag = false;
+    } else if (symbolSpaceRex.test(name)) {
       nameFlag = false;
     } else {
       nameFlag = true;
     }
-  } else if (engRex.test(name)) {
+  } else if (allEngRex.test(name)) {
     nameFlag = true;
   }
 
